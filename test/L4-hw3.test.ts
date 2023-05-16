@@ -82,7 +82,13 @@ describe('HW3 bound eval', () => {
     });
 
     it("Variable is NOT bound", () => {
-        expect(evalParse("(bound? goo)")).toEqual(makeOk(false));
+        const program = `
+        (L4
+            (bound? foo1)
+        )`
+        const parsedProgramm = parseL4(program)
+        // console.log(`boundExp: ${JSON.stringify(parsedProgramm)}`)
+        expect(bind(parsedProgramm, evalProgram)).toEqual(makeOk(false));
     });
 
     describe('HW time eval', () => {
@@ -99,6 +105,7 @@ describe('HW3 bound eval', () => {
             )`
             const parsedProgramm = parseL4(program)
             let retValue = bind(parsedProgramm, evalProgram)
+
 
             expect(retValue).toSatisfy(isOk)
 

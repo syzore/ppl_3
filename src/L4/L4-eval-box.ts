@@ -31,8 +31,8 @@ import { unbox } from "../shared/box";
 // ========================================================
 // Eval functions
 
-const applicativeEval = (exp: CExp, env: Env): Result<Value> =>
-    isNumExp(exp) ? makeOk(exp.val) :
+const applicativeEval = (exp: CExp, env: Env): Result<Value> => {
+    return isNumExp(exp) ? makeOk(exp.val) :
         isBoolExp(exp) ? makeOk(exp.val) :
             isStrExp(exp) ? makeOk(exp.val) :
                 isPrimOp(exp) ? makeOk(exp) :
@@ -49,6 +49,7 @@ const applicativeEval = (exp: CExp, env: Env): Result<Value> =>
                                                             bind(mapResult((rand: CExp) => applicativeEval(rand, env), exp.rands), (args: Value[]) =>
                                                                 applyProcedure(proc, args))) :
                                                             exp;
+}
 
 export const isTrueValue = (x: Value): boolean =>
     !(x === false);
@@ -141,9 +142,9 @@ const evalSet = (exp: SetExp, env: Env): Result<void> =>
 // HW3 complete this function.
 const evalBound = (exp: BoundExp, env: Env): Result<boolean> =>
     isGlobalEnv(env)
-        ? any((fb: FBinding) => fb.var == exp.var.var, unbox(env.frame).fbindings)
+        ? any((fb: FBinding) => fb.var === exp.var.var, unbox(env.frame).fbindings)
             ? makeOk(true) : makeOk(false)
-        : any((fb: FBinding) => fb.var == exp.var.var, env.frame.fbindings)
+        : any((fb: FBinding) => fb.var === exp.var.var, env.frame.fbindings)
             ? makeOk(true) : evalBound(exp, env.env);
 
 
@@ -151,6 +152,6 @@ const evalBound = (exp: BoundExp, env: Env): Result<boolean> =>
 const evalTime = (exp: TimeExp, env: Env): Result<CompoundSExp> => {
     const start: number = Date.now();
     console.log("exp: ", exp.exp);
-    const result = applicativeEval(exp, env);
+    const result = applicativeEval(exp.exp, env);
     return isOk(result) ? makeOk(makeCompoundSExp(result.value, Date.now() - start)) : result;
 }

@@ -301,7 +301,7 @@ const parseBoundExp = (params: Sexp[]): Result<BoundExp> =>
 
 const parseTimeExp = (params: Sexp[]): Result<TimeExp> =>
     (params.length === 1) ?
-        bind(parseL4CExp(params), (cexp: CExp) => makeOk(makeTimeExp(cexp))) :
+        bind(parseL4CExp(params[0]), (cexp: CExp) => makeOk(makeTimeExp(cexp))) :
         makeFailure(`invalid number of arguments in time expression.`);
 
 // LitExp has the shape (quote <sexp>)
