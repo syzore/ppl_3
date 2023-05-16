@@ -2,54 +2,61 @@
 // L4 with mutation (set!) and env-box model
 // Direct evaluation of letrec with mutation, define supports mutual recursion.
 
-import { map, repeat, zipWith } from "ramda";
-import { isBoolExp, isCExp, isLitExp, isNumExp, isPrimOp, isStrExp, isVarRef, isSetExp,
-         isAppExp, isDefineExp, isIfExp, isLetrecExp, isLetExp, isProcExp, Binding, VarDecl, CExp, Exp, IfExp, LetrecExp, LetExp, ProcExp, Program, SetExp,
-         parseL4Exp, 
-         DefineExp,
-         isBoundExp,
-         isTimeExp,
-         BoundExp,
-         unparse,
-         TimeExp} from "./L4-ast";
-import { applyEnv, applyEnvBdg, globalEnvAddBinding, makeExtEnv, setFBinding,
-            theGlobalEnv, Env, FBinding } from "./L4-env-box";
+import { any, map, repeat, zipWith } from "ramda";
+import {
+    isBoolExp, isCExp, isLitExp, isNumExp, isPrimOp, isStrExp, isVarRef, isSetExp,
+    isAppExp, isDefineExp, isIfExp, isLetrecExp, isLetExp, isProcExp, Binding, VarDecl, CExp, Exp, IfExp, LetrecExp, LetExp, ProcExp, Program, SetExp,
+    parseL4Exp,
+    DefineExp,
+    isBoundExp,
+    isTimeExp,
+    BoundExp,
+    unparse,
+    TimeExp
+} from "./L4-ast";
+import {
+    applyEnv, applyEnvBdg, globalEnvAddBinding, makeExtEnv, setFBinding,
+    theGlobalEnv, Env, FBinding, isGlobalEnv
+} from "./L4-env-box";
 import { isClosure, makeClosure, Closure, Value, makeCompoundSExp, CompoundSExp } from "./L4-value-box";
 import { applyPrimitive } from "./evalPrimitive-box";
 import { first, rest, isEmpty, isNonEmptyList } from "../shared/list";
-import { Result, bind, mapv, mapResult, makeFailure, makeOk, isFailure } from "../shared/result";
+import { Result, bind, mapv, mapResult, makeFailure, makeOk, isFailure, isOk } from "../shared/result";
 import { parse as p } from "../shared/parser";
 import { format } from "../shared/format";
 import { isError } from "../shared/type-predicates";
 import { Sexp } from "s-expression";
+import { unbox } from "../shared/box";
 
 // ========================================================
 // Eval functions
 
 const applicativeEval = (exp: CExp, env: Env): Result<Value> =>
     isNumExp(exp) ? makeOk(exp.val) :
-    isBoolExp(exp) ? makeOk(exp.val) :
-    isStrExp(exp) ? makeOk(exp.val) :
-    isPrimOp(exp) ? makeOk(exp) :
-    isVarRef(exp) ? applyEnv(env, exp.var) :
-    isLitExp(exp) ? makeOk(exp.val as Value) :
-    isIfExp(exp) ? evalIf(exp, env) :
-    isProcExp(exp) ? evalProc(exp, env) :
-    isLetExp(exp) ? evalLet(exp, env) :
-    isLetrecExp(exp) ? evalLetrec(exp, env) :
-    isSetExp(exp) ? evalSet(exp, env) :
-    isAppExp(exp) ? bind(applicativeEval(exp.rator, env), (proc: Value) =>
-                        bind(mapResult((rand: CExp) => applicativeEval(rand, env), exp.rands), (args: Value[]) =>
-                            applyProcedure(proc, args))) :
-    exp;
+        isBoolExp(exp) ? makeOk(exp.val) :
+            isStrExp(exp) ? makeOk(exp.val) :
+                isPrimOp(exp) ? makeOk(exp) :
+                    isVarRef(exp) ? applyEnv(env, exp.var) :
+                        isLitExp(exp) ? makeOk(exp.val as Value) :
+                            isIfExp(exp) ? evalIf(exp, env) :
+                                isTimeExp(exp) ? evalTime(exp, env) :
+                                    isBoundExp(exp) ? evalBound(exp, env) :
+                                        isProcExp(exp) ? evalProc(exp, env) :
+                                            isLetExp(exp) ? evalLet(exp, env) :
+                                                isLetrecExp(exp) ? evalLetrec(exp, env) :
+                                                    isSetExp(exp) ? evalSet(exp, env) :
+                                                        isAppExp(exp) ? bind(applicativeEval(exp.rator, env), (proc: Value) =>
+                                                            bind(mapResult((rand: CExp) => applicativeEval(rand, env), exp.rands), (args: Value[]) =>
+                                                                applyProcedure(proc, args))) :
+                                                            exp;
 
 export const isTrueValue = (x: Value): boolean =>
-    ! (x === false);
+    !(x === false);
 
 const evalIf = (exp: IfExp, env: Env): Result<Value> =>
-    bind(applicativeEval(exp.test, env), (test: Value) => 
-        isTrueValue(test) ? applicativeEval(exp.then, env) : 
-        applicativeEval(exp.alt, env));
+    bind(applicativeEval(exp.test, env), (test: Value) =>
+        isTrueValue(test) ? applicativeEval(exp.then, env) :
+            applicativeEval(exp.alt, env));
 
 const evalProc = (exp: ProcExp, env: Env): Result<Closure> =>
     makeOk(makeClosure(exp.args, exp.body, env));
@@ -58,8 +65,9 @@ const evalProc = (exp: ProcExp, env: Env): Result<Closure> =>
 //      Instead we use the env of the closure.
 const applyProcedure = (proc: Value, args: Value[]): Result<Value> =>
     isPrimOp(proc) ? applyPrimitive(proc, args) :
-    isClosure(proc) ? applyClosure(proc, args) :
-    makeFailure(`Bad procedure ${format(proc)}`);
+        isClosure(proc) ? applyClosure(proc, args) :
+            makeFailure(`Bad procedure ${format(proc)}`);
+
 
 const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
     const vars = map((v: VarDecl) => v.var, proc.params);
@@ -68,14 +76,14 @@ const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
 
 // Evaluate a sequence of expressions (in a program)
 export const evalSequence = (seq: Exp[], env: Env): Result<Value> =>
-    isNonEmptyList<Exp>(seq) ? evalCExps(first(seq), rest(seq), env) : 
-    makeFailure("Empty program");
-    
+    isNonEmptyList<Exp>(seq) ? evalCExps(first(seq), rest(seq), env) :
+        makeFailure("Empty program");
+
 const evalCExps = (first: Exp, rest: Exp[], env: Env): Result<Value> =>
     isDefineExp(first) ? evalDefineExps(first, rest) :
-    isCExp(first) && isEmpty(rest) ? applicativeEval(first, env) :
-    isCExp(first) ? bind(applicativeEval(first, env), _ => evalSequence(rest, env)) :
-    first;
+        isCExp(first) && isEmpty(rest) ? applicativeEval(first, env) :
+            isCExp(first) ? bind(applicativeEval(first, env), _ => evalSequence(rest, env)) :
+                first;
 
 // Eval a sequence of expressions when the first exp is a Define.
 // Compute the rhs of the define, extend the env with the new binding
@@ -84,10 +92,10 @@ const evalCExps = (first: Exp, rest: Exp[], env: Env): Result<Value> =>
 // define always updates theGlobalEnv
 // We also only expect defineExps at the top level.
 const evalDefineExps = (def: DefineExp, exps: Exp[]): Result<Value> =>
-    bind(applicativeEval(def.val, theGlobalEnv), (rhs: Value) => { 
-            globalEnvAddBinding(def.var.var, rhs);
-            return evalSequence(exps, theGlobalEnv); 
-        });
+    bind(applicativeEval(def.val, theGlobalEnv), (rhs: Value) => {
+        globalEnvAddBinding(def.var.var, rhs);
+        return evalSequence(exps, theGlobalEnv);
+    });
 
 // Main program
 // L4-BOX @@ Use GE instead of empty-env
@@ -96,8 +104,8 @@ export const evalProgram = (program: Program): Result<Value> =>
 
 export const evalParse = (s: string): Result<Value> =>
     bind(p(s), (x) =>
-            bind(parseL4Exp(x), (exp: Exp) =>
-                evalSequence([exp], theGlobalEnv)));
+        bind(parseL4Exp(x), (exp: Exp) =>
+            evalSequence([exp], theGlobalEnv)));
 
 // LET: Direct evaluation rule without syntax expansion
 // compute the values, extend the env, eval the body.
@@ -119,8 +127,8 @@ const evalLetrec = (exp: LetrecExp, env: Env): Result<Value> => {
     const extEnv = makeExtEnv(vars, repeat(undefined, vars.length), env);
     // @@ Compute the vals in the extended env
     const cvalsResult = mapResult((v: CExp) => applicativeEval(v, extEnv), vals);
-    const result = mapv(cvalsResult, (cvals: Value[]) => 
-                        zipWith((bdg, cval) => setFBinding(bdg, cval), extEnv.frame.fbindings, cvals));
+    const result = mapv(cvalsResult, (cvals: Value[]) =>
+        zipWith((bdg, cval) => setFBinding(bdg, cval), extEnv.frame.fbindings, cvals));
     return bind(result, _ => evalSequence(exp.body, extEnv));
 };
 
@@ -132,9 +140,17 @@ const evalSet = (exp: SetExp, env: Env): Result<void> =>
 
 // HW3 complete this function.
 const evalBound = (exp: BoundExp, env: Env): Result<boolean> =>
-    makeFailure("TODO: HW3");
+    isGlobalEnv(env)
+        ? any((fb: FBinding) => fb.var == exp.var.var, unbox(env.frame).fbindings)
+            ? makeOk(true) : makeOk(false)
+        : any((fb: FBinding) => fb.var == exp.var.var, env.frame.fbindings)
+            ? makeOk(true) : evalBound(exp, env.env);
+
 
 // HW3 complete this function.
-const evalTime = (exp: TimeExp, env: Env): Result<CompoundSExp> => 
-    makeFailure("TODO: HW3");
-    
+const evalTime = (exp: TimeExp, env: Env): Result<CompoundSExp> => {
+    const start: number = Date.now();
+    console.log("exp: ", exp.exp);
+    const result = applicativeEval(exp, env);
+    return isOk(result) ? makeOk(makeCompoundSExp(result.value, Date.now() - start)) : result;
+}

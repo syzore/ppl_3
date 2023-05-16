@@ -8,28 +8,28 @@ import { format } from "../shared/format";
 
 export const applyPrimitive = (proc: PrimOp, args: Value[]): Result<Value> =>
     proc.op === "+" ? (allT(isNumber, args) ? makeOk(reduce((x: number, y: number) => x + y, 0, args)) : makeFailure("+ expects numbers only")) :
-    proc.op === "-" ? minusPrim(args) :
-    proc.op === "*" ? (allT(isNumber, args) ? makeOk(reduce((x: number, y: number) => x * y, 1, args)) : makeFailure("* expects numbers only")) :
-    proc.op === "/" ? divPrim(args) :
-    proc.op === ">" ? ((allT(isNumber, args) || allT(isString, args)) ? makeOk(args[0] > args[1]) : makeFailure("> expects numbers or strings only")) :
-    proc.op === "<" ? ((allT(isNumber, args) || allT(isString, args)) ? makeOk(args[0] < args[1]) : makeFailure("< expects numbers or strings only")) :
-    proc.op === "=" ? makeOk(args[0] === args[1]) :
-    proc.op === "not" ? makeOk(! args[0]) :
-    proc.op === "and" ? isBoolean(args[0]) && isBoolean(args[1]) ? makeOk(args[0] && args[1]) : makeFailure('Arguments to "and" not booleans') :
-    proc.op === "or" ? isBoolean(args[0]) && isBoolean(args[1]) ? makeOk(args[0] || args[1]) : makeFailure('Arguments to "or" not booleans') :
-    proc.op === "eq?" ? makeOk(eqPrim(args)) :
-    proc.op === "string=?" ? makeOk(args[0] === args[1]) :
-    proc.op === "cons" ? makeOk(consPrim(args[0], args[1])) :
-    proc.op === "car" ? carPrim(args[0]) :
-    proc.op === "cdr" ? cdrPrim(args[0]) :
-    proc.op === "list" ? makeOk(listPrim(args)) :
-    proc.op === "list?" ? makeOk(isListPrim(args[0])) :
-    proc.op === "pair?" ? makeOk(isPairPrim(args[0])) :
-    proc.op === "number?" ? makeOk(typeof(args[0]) === 'number') :
-    proc.op === "boolean?" ? makeOk(typeof(args[0]) === 'boolean') :
-    proc.op === "symbol?" ? makeOk(isSymbolSExp(args[0])) :
-    proc.op === "string?" ? makeOk(isString(args[0])) :
-    makeFailure(`Bad primitive op: ${format(proc.op)}`);
+        proc.op === "-" ? minusPrim(args) :
+            proc.op === "*" ? (allT(isNumber, args) ? makeOk(reduce((x: number, y: number) => x * y, 1, args)) : makeFailure("* expects numbers only")) :
+                proc.op === "/" ? divPrim(args) :
+                    proc.op === ">" ? ((allT(isNumber, args) || allT(isString, args)) ? makeOk(args[0] > args[1]) : makeFailure("> expects numbers or strings only")) :
+                        proc.op === "<" ? ((allT(isNumber, args) || allT(isString, args)) ? makeOk(args[0] < args[1]) : makeFailure("< expects numbers or strings only")) :
+                            proc.op === "=" ? makeOk(args[0] === args[1]) :
+                                proc.op === "not" ? makeOk(!args[0]) :
+                                    proc.op === "and" ? isBoolean(args[0]) && isBoolean(args[1]) ? makeOk(args[0] && args[1]) : makeFailure('Arguments to "and" not booleans') :
+                                        proc.op === "or" ? isBoolean(args[0]) && isBoolean(args[1]) ? makeOk(args[0] || args[1]) : makeFailure('Arguments to "or" not booleans') :
+                                            proc.op === "eq?" ? makeOk(eqPrim(args)) :
+                                                proc.op === "string=?" ? makeOk(args[0] === args[1]) :
+                                                    proc.op === "cons" ? makeOk(consPrim(args[0], args[1])) :
+                                                        proc.op === "car" ? carPrim(args[0]) :
+                                                            proc.op === "cdr" ? cdrPrim(args[0]) :
+                                                                proc.op === "list" ? makeOk(listPrim(args)) :
+                                                                    proc.op === "list?" ? makeOk(isListPrim(args[0])) :
+                                                                        proc.op === "pair?" ? makeOk(isPairPrim(args[0])) :
+                                                                            proc.op === "number?" ? makeOk(typeof (args[0]) === 'number') :
+                                                                                proc.op === "boolean?" ? makeOk(typeof (args[0]) === 'boolean') :
+                                                                                    proc.op === "symbol?" ? makeOk(isSymbolSExp(args[0])) :
+                                                                                        proc.op === "string?" ? makeOk(isString(args[0])) :
+                                                                                            makeFailure(`Bad primitive op: ${format(proc.op)}`);
 
 const minusPrim = (args: Value[]): Result<number> => {
     // TODO complete
@@ -70,18 +70,18 @@ const eqPrim = (args: Value[]): boolean => {
 
 const carPrim = (v: Value): Result<Value> =>
     isCompoundSExp(v) ? makeOk(v.val1) :
-    makeFailure(`Car: param is not compound ${format(v)}`);
+        makeFailure(`Car: param is not compound ${format(v)}`);
 
 const cdrPrim = (v: Value): Result<Value> =>
     isCompoundSExp(v) ? makeOk(v.val2) :
-    makeFailure(`Cdr: param is not compound ${format(v)}`);
+        makeFailure(`Cdr: param is not compound ${format(v)}`);
 
 const consPrim = (v1: Value, v2: Value): CompoundSExp =>
     makeCompoundSExp(v1, v2);
 
 export const listPrim = (vals: Value[]): EmptySExp | CompoundSExp =>
-    isNonEmptyList<Value>(vals) ? makeCompoundSExp(first(vals), listPrim(rest(vals))) : 
-    makeEmptySExp();
+    isNonEmptyList<Value>(vals) ? makeCompoundSExp(first(vals), listPrim(rest(vals))) :
+        makeEmptySExp();
 
 const isListPrim = (v: Value): boolean =>
     isEmptySExp(v) || isCompoundSExp(v);

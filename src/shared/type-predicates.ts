@@ -9,10 +9,10 @@ export const isError = (x: any): x is Error => x instanceof Error;
 // Check that a string encodes a number (also works for -3.0)
 // Uses the same conventions as JavaScript - covers octal, hexadecimal, decimal, float
 // '0xAB', '0o77' '-1.0e-12' are all valid numbers
-export const isNumericString = (x: string): boolean => 
-    ((x != null) &&
-     (x !== '') &&
-     !isNaN(Number(x)));
+export const isNumericString = (x: string): boolean =>
+((x != null) &&
+    (x !== '') &&
+    !isNaN(Number(x)));
 
 
 // A predicate for a valid identifier

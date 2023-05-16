@@ -45,7 +45,7 @@ describe("HW3 time AST", () => {
     it("Time expression with composite expression", () => {
         const timeExp = p("(time (lambda (x) x))");
         expect(timeExp).toSatisfy(isOkT(isTimeExp));
-    })    
+    })
 
     it("Time expression without arguments", () => {
         const timeExp = p("(time)")
@@ -55,7 +55,8 @@ describe("HW3 time AST", () => {
     it("Time expression with more than 1 argument", () => {
         const timeExp = p("(time a b c)")
         expect(timeExp).toSatisfy(isFailure)
-    })})
+    })
+})
 
 describe('HW3 bound eval', () => {
 
@@ -93,14 +94,14 @@ describe('HW3 bound eval', () => {
                     (lambda (n)
                       (if (= n 0) 1
                           (if (= n 1) 1
-                              (+ (fib (- n 2)) (fib (- n 1)))))))      
+                              (+ (fib (- n 2)) (fib (- n 1)))))))
                 (time (fib 20))
             )`
             const parsedProgramm = parseL4(program)
             let retValue = bind(parsedProgramm, evalProgram)
 
             expect(retValue).toSatisfy(isOk)
-            
+
             if (isOk(retValue)) {
                 let val = (retValue.value as CompoundSExp).val1
                 let timeInMs = (retValue.value as CompoundSExp).val2
@@ -109,6 +110,6 @@ describe('HW3 bound eval', () => {
                 expect(timeInMs).toBeGreaterThan(50)
             }
 
-        });                
+        });
     })
 });

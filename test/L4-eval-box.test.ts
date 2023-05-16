@@ -20,8 +20,8 @@ describe('HW3 bound', () => {
     //         (trace square)
     //         (square 2)
     //     )`), evalProgram)).toEqual(makeOk(4));
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> (square 2)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< 4");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> (square 2)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< 4");
     // });
 
     // it("prints the trace of (list-len '(s t))", () => {
@@ -36,14 +36,14 @@ describe('HW3 bound', () => {
     //         (trace list-len)
     //         (list-len '(s t))
     //     )`), evalProgram)).toEqual(makeOk(2));
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> (list-len (s t))");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> > (list-len (t))");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> > > (list-len '())");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< < < 0");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< < 1");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< 2");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> (list-len (s t))");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> > (list-len (t))");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> > > (list-len '())");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< < < 0");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< < 1");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< 2");
     // });
-    
+
     // it("prints the trace of (fact 4))", () => {
     //     const consoleSpy = jest.spyOn(console, 'log');
     //     expect(bind(parseL4(`
@@ -59,16 +59,16 @@ describe('HW3 bound', () => {
     //         (trace fact)
     //         (fact 4)
     //     )`), evalProgram)).toEqual(makeOk(24));
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> (fact 4)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> > (fact 3)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> > > (fact 2)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> > > > (fact 1)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> > > > > (fact 0)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< < < < < 1");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< < < < 1");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< < < 2");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< < 6");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< 24");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> (fact 4)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> > (fact 3)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> > > (fact 2)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> > > > (fact 1)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> > > > > (fact 0)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< < < < < 1");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< < < < 1");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< < < 2");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< < 6");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< 24");
     // });
 
     it("doesn't print the trace of untraced proc", () => {
@@ -98,13 +98,13 @@ describe('HW3 bound', () => {
     //                 (lambda (n) (aux n 1))
     //             )
     //         )
-            
+
     //         (trace facti)
-        
+
     //         (facti 5)
     //     )`), evalProgram)).toEqual(makeOk(120));
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "> (facti 5)");
-    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt , "< 120");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "> (facti 5)");
+    //     expect(consoleSpy).toHaveBeenNthCalledWith(++cnt, "< 120");
     // });
 
     // it("shouldn't trace numbers", () => {
@@ -122,7 +122,7 @@ describe('HW3 bound', () => {
     // it("shouldn't trace non-existing identifiers", () => {
     //     expect(bind(parseL4("(L4 (trace foo) (+ 2 3))"), evalProgram)).toSatisfy(isFailure);
     // })
-    
+
 })
 
 describe('L4 Box Environment', () => {

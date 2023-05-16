@@ -1,6 +1,8 @@
-import { isBoolExp, isNumExp, isPrimOp, isStrExp, isVarDecl, isVarRef, isSetExp,
+import {
+    isBoolExp, isNumExp, isPrimOp, isStrExp, isVarDecl, isVarRef, isSetExp,
     isAppExp, isDefineExp, isIfExp, isLetrecExp, isLetExp, isLitExp, isProcExp, isProgram,
-    parseL4, unparse, parseL4Exp, Exp, makeBoundExp, makeVarRef, isBoundExp } from '../src/L4/L4-ast';
+    parseL4, unparse, parseL4Exp, Exp, makeBoundExp, makeVarRef, isBoundExp
+} from '../src/L4/L4-ast';
 import { Result, bind, isOkT, makeOk, isFailure, isOk } from '../src/shared/result';
 import { parse as parseSexp } from "../src/shared/parser";
 import { T } from 'ramda';
@@ -83,7 +85,7 @@ describe('L4 Parser', () => {
         it("returns a Failure for a program with no Exps", () => {
             expect(parseL4("(L4)")).toSatisfy(isFailure);
         });
-    
+
         it("returns a Failure if a program has an empty Exp", () => {
             expect(parseL4("(L4 ())")).toSatisfy(isFailure);
         });

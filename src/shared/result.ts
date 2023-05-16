@@ -36,14 +36,14 @@ export const mapv = <T, U>(r: Result<T>, f: (x: T) => U): Result<U> =>
 // Also known as flatmap
 export const rbind =
   <T, U>(f: (x: T) => Result<U>): ((r: Result<T>) => Result<U>) =>
-  (r) =>
-    isOk(r) ? f(r.value) : r;
+    (r) =>
+      isOk(r) ? f(r.value) : r;
 
 // Traditional Result.map(f) from horizontal T->U to lifted R<T>->R<U>
 export const rmap =
   <T, U>(f: (x: T) => U): ((r: Result<T>) => Result<U>) =>
-  (r) =>
-    isOk(r) ? makeOk(f(r.value)) : r;
+    (r) =>
+      isOk(r) ? makeOk(f(r.value)) : r;
 
 // Traditionally called Result.fold(result, onOk, onFailure)
 export const either = <T, U>(
@@ -59,8 +59,8 @@ export const either = <T, U>(
 //     isOkT(isAppExp)(r) ? [here "r" is Ok<AppExp>]
 export const isOkT =
   <T>(pred: (x: any) => x is T) =>
-  (r: any): r is Ok<T> =>
-    isOk(r) && pred(r.value);
+    (r: any): r is Ok<T> =>
+      isOk(r) && pred(r.value);
 
 // Purpose: Like map on an array - but with a diagonal transformer operator (returns a Result<T>)
 //          With f: T=>Result<U> and list: List<T> return a Result<List<U>>
@@ -72,9 +72,9 @@ export const mapResult = <T, U>(
   f: (x: T) => Result<U>,
   list: List<T>
 ): Result<List<U>> =>
-  isNonEmptyList<T>(list) ? bind(f(first(list)), 
-                                 (fa: U) => bind(mapResult(f, rest(list)), 
-                                                 (fas: U[]) => makeOk(cons(fa, fas))))
+  isNonEmptyList<T>(list) ? bind(f(first(list)),
+    (fa: U) => bind(mapResult(f, rest(list)),
+      (fas: U[]) => makeOk(cons(fa, fas))))
     : makeOk([]);
 
 export const zipWithResult = <T1, T2, T3>(
@@ -82,18 +82,18 @@ export const zipWithResult = <T1, T2, T3>(
   xs: List<T1>,
   ys: List<T2>
 ): Result<List<T3>> =>
-  isNonEmptyList<T1>(xs) && 
-  isNonEmptyList<T2>(ys) ? bind(f(first(xs), first(ys)), 
-                                (fxy: T3) => bind(zipWithResult(f, rest(xs), rest(ys)), 
-                                                  (fxys: T3[]) => makeOk(cons(fxy, fxys))))
-  : makeOk([]);
+  isNonEmptyList<T1>(xs) &&
+    isNonEmptyList<T2>(ys) ? bind(f(first(xs), first(ys)),
+      (fxy: T3) => bind(zipWithResult(f, rest(xs), rest(ys)),
+        (fxys: T3[]) => makeOk(cons(fxy, fxys))))
+    : makeOk([]);
 
 export const safe2 =
   <T1, T2, T3>(
     f: (x: T1, y: T2) => Result<T3>
   ): ((xr: Result<T1>, yr: Result<T2>) => Result<T3>) =>
-  (xr: Result<T1>, yr: Result<T2>) =>
-    bind(xr, (x: T1) => bind(yr, (y: T2) => f(x, y)));
+    (xr: Result<T1>, yr: Result<T2>) =>
+      bind(xr, (x: T1) => bind(yr, (y: T2) => f(x, y)));
 
 export const resultToOptional = <T>(r: Result<T>): Optional<T> =>
   either(r, makeSome, (_) => makeNone());

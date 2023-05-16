@@ -42,9 +42,9 @@ export const mapOptional = <T, U>(
   list: List<T>
 ): Optional<List<U>> =>
   isNonEmptyList<T>(list) ? bind(f(first(list)), (fa: U) =>
-        bind(mapOptional(f, rest(list)), (fas: List<U>) =>
-          makeSome(cons(fa, fas))))
-  : makeSome([]);
+    bind(mapOptional(f, rest(list)), (fas: List<U>) =>
+      makeSome(cons(fa, fas))))
+    : makeSome([]);
 
 export const optionalToResult = <T>(
   o: Optional<T>,
